@@ -13,7 +13,7 @@ export const DatabaseProvider = MongooseModule.forRootAsync({
     }
 
     return {
-      uri: 'mongodb://127.0.0.1:27017/complaints_db',
+      uri: process.env.MONGO_URI,
     };
   },
 });
