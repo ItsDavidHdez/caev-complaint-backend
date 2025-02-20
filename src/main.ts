@@ -4,7 +4,13 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule); // dotenv.config();
+  console.log('🔍 MONGO_URI en Railway:', process.env.MONGO_URI);
+
+  if (!process.env.MONGO_URI) {
+    console.error('❌ ERROR: MONGO_URI no está definido en Railway');
+    process.exit(1);
+  }
+  const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
     new ValidationPipe({
