@@ -5,7 +5,7 @@ export const DatabaseProvider = MongooseModule.forRootAsync({
     const mongoose = require('mongoose');
 
     try {
-      await mongoose.connect('mongodb://127.0.0.1:27017/complaints_db');
+      await mongoose.connect(process.env.MONGO_URI);
       console.log('✅ Conectado a MongoDB correctamente');
     } catch (error) {
       console.error('❌ Error al conectar a MongoDB:', error.message);
