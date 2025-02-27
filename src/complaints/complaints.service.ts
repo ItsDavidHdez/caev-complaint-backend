@@ -12,9 +12,31 @@ export class ComplaintsService {
   ) {}
 
   async create(createComplaintDto: CreateComplaintDto): Promise<Complaint> {
+    const { type } = createComplaintDto;
+    const currentYear = new Date().getFullYear();
+    const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+
+    const typePrefix =
+      {
+        'Falta-servicio': 'FA-ST',
+        drenajes: 'D. -ST',
+        varios: 'RP-ST',
+      }[type] || 'OT-ST';
+
+    const complaintCount = await this.complaintModel.countDocuments({
+      consecutiveId: {
+        $regex: `${typePrefix}-${currentYear}-${currentMonth}/`,
+      },
+    });
+
+    const complaintNumber = String(complaintCount + 1).padStart(3, '0');
+    const customId = `${typePrefix}-${currentYear}-${currentMonth}/${complaintNumber}`;
+
     const complaint = new this.complaintModel({
+      consecutiveId: customId,
       ...createComplaintDto,
       date: new Date(),
+      status: 'Pendiente',
     });
     return complaint.save();
   }
@@ -36,5 +58,19 @@ export class ComplaintsService {
     if (!result) {
       throw new NotFoundException('Complaint not found');
     }
+  }
+
+  async updateComplaintStatus(id: string, status: string) {
+    const updatedComplaint = await this.complaintModel.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true },
+    );
+
+    if (!updatedComplaint) {
+      throw new NotFoundException('Complaint not found');
+    }
+
+    return updatedComplaint;
   }
 }

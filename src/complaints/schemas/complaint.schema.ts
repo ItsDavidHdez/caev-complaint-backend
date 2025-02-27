@@ -5,6 +5,9 @@ export type ComplaintDocument = Complaint & Document;
 
 @Schema({ timestamps: true })
 export class Complaint {
+  @Prop({ unique: true })
+  consecutiveId: string;
+
   @Prop({ required: true })
   name: string;
 
@@ -28,6 +31,9 @@ export class Complaint {
 
   @Prop({ default: () => new Date() })
   date: Date;
+
+  @Prop({ default: 'Pendiente' })
+  status: string;
 }
 
 export const ComplaintSchema = SchemaFactory.createForClass(Complaint);

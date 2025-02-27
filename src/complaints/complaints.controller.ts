@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ComplaintsService } from './complaints.service';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
@@ -36,5 +37,11 @@ export class ComplaintsController {
   @UseGuards(AuthGuard('jwt'))
   delete(@Param('id') id: string) {
     return this.complaintsService.delete(id);
+  }
+
+  @Put(':id')
+  @UseGuards(AuthGuard('jwt'))
+  pdateStatus(@Param('id') id: string, @Body('status') status: string) {
+    return this.complaintsService.updateComplaintStatus(id, status);
   }
 }
