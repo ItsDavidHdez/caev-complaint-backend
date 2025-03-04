@@ -16,6 +16,12 @@ import { AuthGuard } from '@nestjs/passport';
 export class ComplaintsController {
   constructor(private readonly complaintsService: ComplaintsService) {}
 
+  @Get('search/:consecutiveId')
+  async findByConsecutiveId(@Param('consecutiveId') consecutiveId: string) {
+    const decodedId = decodeURIComponent(consecutiveId);
+    return this.complaintsService.findByConsecutiveId(decodedId);
+  }
+
   @Post()
   create(@Body() createComplaintDto: CreateComplaintDto) {
     return this.complaintsService.create(createComplaintDto);

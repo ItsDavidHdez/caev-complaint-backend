@@ -20,6 +20,8 @@ export class ComplaintsService {
       {
         'Falta-servicio': 'FA-ST',
         drenajes: 'D. -ST',
+        fugas: 'FA.ST',
+        'calidad-agua': 'CA.ST',
         varios: 'RP-ST',
       }[type] || 'OT-ST';
 
@@ -43,6 +45,21 @@ export class ComplaintsService {
 
   async findAll(): Promise<Complaint[]> {
     return this.complaintModel.find().exec();
+  }
+
+  async findByConsecutiveId(consecutiveId: string): Promise<Complaint> {
+    const complaint = await this.complaintModel
+      .findOne({ consecutiveId })
+      .exec();
+    if (!complaint) {
+      console.log(
+        `❌ No se encontró la queja con consecutiveId: "${consecutiveId}"`,
+      );
+      throw new NotFoundException(
+        `No se encontró la queja con ID consecutivo: ${consecutiveId}`,
+      );
+    }
+    return complaint;
   }
 
   async findOne(id: string): Promise<Complaint> {
