@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
 import { Admin, AdminDocument } from './schemas/admin.schema';
 import { AuthDto } from './dto/auth.dto';
@@ -54,5 +55,47 @@ export class AuthService {
 
   async getUsers() {
     return this.adminModel.find().select('-password');
+  }
+
+  async generateTokens(user: any) {
+    const payload = { sub: user._id, username: user.username };
+
+    const accessToken = jwt.sign(
+      payload,
+      process.env.REFRESH_SECRET || 'secretWordFormRefreshToken',
+      {
+        expiresIn: '15m',
+      },
+    );
+
+    const refreshToken = jwt.sign(
+      payload,
+      process.env.REFRESH_SECRET || 'secretWordFormRefreshToken',
+      {
+        expiresIn: '30d',
+      },
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      const payload = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_SECRET || 'secretWordFormRefreshToken',
+      );
+      const newAccessToken = jwt.sign(
+        { sub: payload.sub },
+        process.env.JWT_SECRET || 'secretWordFormRefreshToken',
+        {
+          expiresIn: '15m',
+        },
+      );
+
+      return { accessToken: newAccessToken };
+    } catch (error) {
+      throw new Error('Invalid refresh token');
+    }
   }
 }
